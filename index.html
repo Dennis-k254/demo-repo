@@ -130,20 +130,20 @@
         <form id="mortgageForm">
             <div class="form-group">
                 <label for="principal">Principal Amount ($)</label>
-                <input type="number" id="principal" placeholder="e.g., 300000" min="0" step="100" required>
-                <div class="error" id="principalError">Principal must be greater than 0</div>
+                <input type="number" id="principal" placeholder="e.g., 300000" min="1000" step="100" required>
+                <div class="error" id="principalError">Principal must be between $1,000 and $1,000,000</div>
             </div>
             
             <div class="form-group">
                 <label for="rate">Annual Interest Rate (%)</label>
-                <input type="number" id="rate" placeholder="e.g., 6.5" min="0" max="100" step="0.1" required>
-                <div class="error" id="rateError">Interest rate must be between 0 and 100</div>
+                <input type="number" id="rate" placeholder="e.g., 6.5" min="1" max="30" step="0.1" required>
+                <div class="error" id="rateError">Interest rate must be between 1% and 30%</div>
             </div>
             
             <div class="form-group">
                 <label for="years">Repayment Period (Years)</label>
-                <input type="number" id="years" placeholder="e.g., 30" min="1" max="50" step="1" required>
-                <div class="error" id="yearsError">Period must be between 1 and 50 years</div>
+                <input type="number" id="years" placeholder="e.g., 30" min="1" max="30" step="1" required>
+                <div class="error" id="yearsError">Period must be between 1 and 30 years</div>
             </div>
             
             <button type="submit">Calculate Monthly Payment</button>
@@ -184,22 +184,25 @@
             // Validate inputs
             let isValid = true;
             
-            if (principal <= 0) {
+            if (principal < 1000 || principal > 1000000) {
                 errors.principal.classList.add('show');
                 isValid = false;
             }
             
-            if (annualRate < 0 || annualRate > 100) {
+            if (annualRate < 1 || annualRate > 30) {
                 errors.rate.classList.add('show');
                 isValid = false;
             }
             
-            if (years < 1 || years > 50) {
+            if (years < 1 || years > 30) {
                 errors.years.classList.add('show');
                 isValid = false;
             }
             
-            if (!isValid) return;
+            if (!isValid) {
+                alert('Please correct the highlighted errors and try again.');
+                return;
+            }
             
             // Calculate monthly payment
             const monthlyRate = annualRate / 100 / 12;
