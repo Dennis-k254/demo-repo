@@ -3,10 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Page</title>
+    <title>Mortgage Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result-label {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .result-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>This is a simple HTML page.</p>
+    <div class="container">
+        <h1>🏡 Mortgage Calculator</h1>
+        
+        <form id="mortgageForm">
+            <div class="form-group">
+                <label for="principal">Principal Amount ($)</label>
+                <input type="number" id="principal" placeholder="e.g., 300000" min="0" step="100" required>
+                <div class="error" id="principalError">Principal must be greater than 0</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="rate">Annual Interest Rate (%)</label>
+                <input type="number" id="rate" placeholder="e.g., 6.5" min="0" max="100" step="0.1" required>
+                <div class="error" id="rateError">Interest rate must be between 0 and 100</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="years">Repayment Period (Years)</label>
+                <input type="number" id="years" placeholder="e.g., 30" min="1" max="50" step="1" required>
+                <div class="error" id="yearsError">Period must be between 1 and 50 years</div>
+            </div>
+            
+            <button type="submit">Calculate Monthly Payment</button>
+        </form>
+        
+        <div class="result" id="result">
+            <div class="result-label">Monthly Mortgage Payment</div>
+            <div class="result-value" id="monthlyPayment">$0.00</div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('mortgageForm');
+        const principalInput = document.getElementById('principal');
+        const rateInput = document.getElementById('rate');
+        const yearsInput = document.getElementById('years');
+        const resultDiv = document.getElementById('result');
+        const monthlyPaymentDiv = document.getElementById('monthlyPayment');
+        
+        const errors = {
+            principal: document.getElementById('principalError'),
+            rate: document.getElementById('rateError'),
+            years: document.getElementById('yearsError')
+        };
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            Object.values(errors).forEach(error => error.classList.remove('show'));
+            resultDiv.classList.remove('show');
+            
+            // Get values
+            const principal = parseFloat(principalInput.value);
+            const annualRate = parseFloat(rateInput.value);
+            const years = parseInt(yearsInput.value);
+            
+            // Validate inputs
+            let isValid = true;
+            
+            if (principal <= 0) {
+                errors.principal.classList.add('show');
+                isValid = false;
+            }
+            
+            if (annualRate < 0 || annualRate > 100) {
+                errors.rate.classList.add('show');
+                isValid = false;
+            }
+            
+            if (years < 1 || years > 50) {
+                errors.years.classList.add('show');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Calculate monthly payment
+            const monthlyRate = annualRate / 100 / 12;
+            const numberOfPayments = years * 12;
+            
+            let monthlyPayment;
+            
+            if (monthlyRate === 0) {
+                // No interest
+                monthlyPayment = principal / numberOfPayments;
+            } else {
+                // Standard mortgage formula
+                monthlyPayment = principal * 
+                    (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+                    (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+            }
+            
+            // Display result
+            monthlyPaymentDiv.textContent = '$' + monthlyPayment.toFixed(2);
+            resultDiv.classList.add('show');
+        });
+    </script>
 </body>
 </html>
